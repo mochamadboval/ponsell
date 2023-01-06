@@ -19,7 +19,7 @@ export default function App({ Component, pageProps }) {
       >
         <h1 className="text-4xl text-center">Ponsell</h1>
       </header>
-      <main className={inter.className}>
+      <main className={`${inter.className} py-12 text-sm`}>
         <Component {...pageProps} />
         <nav className="bg-white bottom-0 fixed shadow-sm w-full">
           <ul className="flex items-center justify-center">
