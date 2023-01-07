@@ -9,7 +9,7 @@ export function getProducts() {
   return data;
 }
 
-export function sortProducts(data, value) {
+export function sortProducts(data, count, value) {
   let sorted = [];
 
   data.products
@@ -25,16 +25,18 @@ export function sortProducts(data, value) {
       let y = new Date(b.release_date);
       return y - x;
     })
-    .map((product) => {
-      sorted.push({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        RAM: product.RAM,
-        internal: product.internal,
-        release_date: product.release_date,
-        images: product.images[0],
-      });
+    .map((product, index) => {
+      if (index < count) {
+        sorted.push({
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          RAM: product.RAM,
+          internal: product.internal,
+          release_date: product.release_date,
+          images: product.images[0],
+        });
+      }
     });
 
   return sorted;
@@ -43,9 +45,10 @@ export function sortProducts(data, value) {
 export default function handler(req, res) {
   if (req.method === "POST") {
     const value = req.body.value;
+    const count = req.body.count;
 
     const products = getProducts();
-    const sorted = sortProducts(products, value);
+    const sorted = sortProducts(products, count, value);
 
     res.status(200).json({ products: sorted });
   }

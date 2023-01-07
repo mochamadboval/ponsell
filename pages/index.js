@@ -6,11 +6,15 @@ import { Fragment, useState } from "react";
 
 import ProductItem from "../components/ProductItem";
 
+const initialCount = 8;
+
 export default function Home(props) {
   const { initialProducts } = props;
 
   const [products, setProducts] = useState(initialProducts);
   const [selectValue, setSelectValue] = useState("date");
+  const [count, setCount] = useState(initialCount);
+  const [isAllLoaded, setIsAllLoaded] = useState(false);
 
   const changeSortHandler = async (event) => {
     const value = event.target.value;
@@ -20,12 +24,34 @@ export default function Home(props) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ value }),
+      body: JSON.stringify({ count: initialCount, value }),
     });
     const data = await response.json();
 
     setProducts(data.products);
     setSelectValue(value);
+    setCount(initialCount);
+    setIsAllLoaded(false);
+  };
+
+  const loadMoreHandler = async () => {
+    const currentCount = count + initialCount;
+
+    const response = await fetch("/api/products", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ count: currentCount, value: selectValue }),
+    });
+    const data = await response.json();
+
+    setProducts(data.products);
+    setCount(currentCount);
+
+    if (data.products.length < currentCount) {
+      setIsAllLoaded(true);
+    }
   };
 
   return (
@@ -43,7 +69,7 @@ export default function Home(props) {
       <div className="flex items-center justify-end px-4 pt-5">
         <p className="mr-2">Sorted by</p>
         <select
-          className="bg-white p-2 rounded-md shadow-sm"
+          className="bg-white p-3 rounded-md shadow-sm"
           value={selectValue}
           onChange={changeSortHandler}
         >
@@ -57,13 +83,25 @@ export default function Home(props) {
           <ProductItem key={product.id} product={product} />
         ))}
       </div>
+      <div className="pb-5 px-4 text-center">
+        {!isAllLoaded ? (
+          <button
+            className="bg-green-600 px-6 py-3 rounded-md shadow-sm text-white"
+            onClick={loadMoreHandler}
+          >
+            Load more
+          </button>
+        ) : (
+          <p>All products are loaded.</p>
+        )}
+      </div>
     </Fragment>
   );
 }
 
 export function getStaticProps() {
   const products = getProducts();
-  const sorted = sortProducts(products);
+  const sorted = sortProducts(products, 8);
 
   return {
     props: {
