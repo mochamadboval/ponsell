@@ -35,6 +35,21 @@ a {
   text-decoration: none;
 }
 
+.figure-images {
+  scroll-padding-inline: 16px;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.figure-images::-webkit-scrollbar {
+  display: none;
+}
+
+.image-box {
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+}
+
 .product-image {
   aspect-ratio: 1 / 1;
   margin-inline: auto;
@@ -44,4 +59,10 @@ a {
 
 .mt-auto {
   margin-top: auto;
+}
+
+@media all and (min-width: 576px) {
+  .image-box {
+    flex: 0 0 calc(100% / 2 - 4px);
+  }
 }
