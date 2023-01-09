@@ -9,6 +9,21 @@ export function getProducts() {
   return data;
 }
 
+export function getCategory(data, category) {
+  const sortCategory = { products: [] };
+
+  data.products.map((product) => {
+    if (
+      product.brand.toLowerCase() === category ||
+      product.network.toLowerCase() === category
+    ) {
+      sortCategory.products.push(product);
+    }
+  });
+
+  return sortCategory;
+}
+
 export function sortProducts(data, count, value) {
   let sorted = [];
 
@@ -46,8 +61,13 @@ export default function handler(req, res) {
   if (req.method === "POST") {
     const value = req.body.value;
     const count = req.body.count;
+    const category = req.body.category;
 
-    const products = getProducts();
+    let products = getProducts();
+    if (category) {
+      products = getCategory(products, category);
+    }
+
     const sorted = sortProducts(products, count, value);
 
     res.status(200).json({ products: sorted });

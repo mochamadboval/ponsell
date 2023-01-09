@@ -1,15 +1,16 @@
 import { getProducts, sortProducts } from "./api/products";
+import fetchProducts from "../helpers/fetchProducts";
 
 import Head from "next/head";
 
 import { Fragment, useState } from "react";
 
-import ProductItem from "../components/ProductItem";
-
-const initialCount = 8;
+import LoadMore from "../components/Product/LoadMore";
+import ProductItem from "../components/Product/ProductItem";
+import SortProduct from "../components/Product/SortProducts";
 
 export default function Home(props) {
-  const { initialProducts } = props;
+  const { initialCount, initialProducts } = props;
 
   const [products, setProducts] = useState(initialProducts);
   const [selectValue, setSelectValue] = useState("date");
@@ -18,15 +19,7 @@ export default function Home(props) {
 
   const changeSortHandler = async (event) => {
     const value = event.target.value;
-
-    const response = await fetch("/api/products", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ count: initialCount, value }),
-    });
-    const data = await response.json();
+    const data = await fetchProducts(initialCount, value);
 
     setProducts(data.products);
     setSelectValue(value);
@@ -36,15 +29,7 @@ export default function Home(props) {
 
   const loadMoreHandler = async () => {
     const currentCount = count + initialCount;
-
-    const response = await fetch("/api/products", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ count: currentCount, value: selectValue }),
-    });
-    const data = await response.json();
+    const data = await fetchProducts(currentCount, selectValue);
 
     setProducts(data.products);
     setCount(currentCount);
@@ -66,45 +51,26 @@ export default function Home(props) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div className="flex items-center justify-end px-4 pt-5">
-        <p className="mr-2">Sorted by</p>
-        <select
-          className="bg-white p-3 rounded-md shadow-sm"
-          value={selectValue}
-          onChange={changeSortHandler}
-        >
-          <option value="high">Price: High to low</option>
-          <option value="low">Price: Low to high</option>
-          <option value="date">Release date</option>
-        </select>
-      </div>
+      <SortProduct selectValue={selectValue} sort={changeSortHandler} />
       <div className="flex flex-wrap gap-4 px-4 py-5">
         {products.map((product) => (
           <ProductItem key={product.id} product={product} />
         ))}
       </div>
-      <div className="pb-5 px-4 text-center">
-        {!isAllLoaded ? (
-          <button
-            className="bg-green-600 px-6 py-3 rounded-md shadow-sm text-white"
-            onClick={loadMoreHandler}
-          >
-            Load more
-          </button>
-        ) : (
-          <p>All products are loaded.</p>
-        )}
-      </div>
+      <LoadMore isAllLoaded={isAllLoaded} loadMore={loadMoreHandler} />
     </Fragment>
   );
 }
 
 export function getStaticProps() {
+  const initialCount = 8;
+
   const products = getProducts();
-  const sorted = sortProducts(products, 8);
+  const sorted = sortProducts(products, initialCount);
 
   return {
     props: {
+      initialCount,
       initialProducts: sorted,
     },
     revalidate: 10,
