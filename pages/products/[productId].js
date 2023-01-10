@@ -23,8 +23,8 @@ export default function Product(props) {
       </Head>
 
       <div className="max-w-screen-sm mx-auto">
-        <figure className="figure-images flex gap-2 overflow-x-auto px-4 pt-5">
-          {product.images.map((image) => (
+        <figure className="figure-images flex gap-2 overflow-x-auto pt-5 px-4">
+          {product.images.map((image, index) => (
             <div
               key={image}
               className="image-box bg-white p-4 rounded-md shadow-sm"
@@ -34,12 +34,13 @@ export default function Product(props) {
                 alt={product.name}
                 width={512}
                 height={512}
+                priority={index < 2 ? true : false}
                 className="product-image"
               />
             </div>
           ))}
         </figure>
-        <div className="pb-20 px-4 pt-5">
+        <div className="pb-20 pt-5 px-4">
           <article className="bg-white p-4 rounded-md shadow-sm">
             <h2 className="text-base">{product.name}</h2>
             <p className="font-bold pt-2 text-base">${product.price}</p>
@@ -97,11 +98,11 @@ export default function Product(props) {
           </article>
         </div>
       </div>
-      <div className="bg-white bottom-0 fixed flex left-1/2 -translate-x-1/2 max-w-screen-sm mb-0.5 pb-14 pt-2 px-4 sm:rounded-t-md w-full">
+      <div className="bg-white bottom-0 fixed flex left-1/2 -translate-x-1/2 max-w-screen-sm mb-0.5 pb-14 pt-2 px-4 w-full sm:rounded-t-md">
         <button className="flex-shrink-0 px-3">
           <Image src={`/icons/wishlist.svg`} alt="" width={24} height={24} />
         </button>
-        <button className="bg-green-600 ml-2 py-3 rounded-md shadow-sm text-white w-full">
+        <button className="bg-green-700 ml-2 py-3 rounded-md shadow-sm text-white w-full">
           Add to Cart
         </button>
       </div>

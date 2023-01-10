@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 export default function ProductItem(props) {
-  const { product } = props;
+  const { index, product } = props;
 
   return (
     <Link
@@ -15,6 +15,7 @@ export default function ProductItem(props) {
           alt={product.name}
           width={340}
           height={340}
+          priority={index < 8 ? true : false}
           className="product-image"
         />
         <h2 className="mt-2">{product.name}</h2>

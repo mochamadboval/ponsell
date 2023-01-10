@@ -10,18 +10,18 @@ export function getProducts() {
 }
 
 export function getCategory(data, category) {
-  const sortCategory = { products: [] };
+  const selected = { products: [] };
 
   data.products.map((product) => {
     if (
       product.brand.toLowerCase() === category ||
       product.network.toLowerCase() === category
     ) {
-      sortCategory.products.push(product);
+      selected.products.push(product);
     }
   });
 
-  return sortCategory;
+  return selected;
 }
 
 export function sortProducts(data, count, value) {

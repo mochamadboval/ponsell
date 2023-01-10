@@ -4,8 +4,8 @@ export default function CategoryItem(props) {
   const { items, name } = props;
 
   return (
-    <div className="px-4 pt-5">
-      <h2 className="font-bold">{name}</h2>
+    <div className="pt-5 px-4">
+      <h2 className="font-bold text-base">{name}</h2>
       <div className="flex flex-wrap gap-2 pt-2">
         {items.map((item) => (
           <Link

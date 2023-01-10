@@ -1,8 +1,8 @@
-export default function SortProduct(props) {
+export default function SortProducts(props) {
   const { selectValue, sort } = props;
 
   return (
-    <div className="flex items-center justify-end px-4 pt-5">
+    <div className="flex items-center justify-end pt-5 px-4">
       <p className="mr-2">Sorted by</p>
       <select
         className="bg-white p-3 rounded-md shadow-sm"

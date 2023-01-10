@@ -7,7 +7,7 @@ import { Fragment, useState } from "react";
 
 import LoadMore from "../../components/Product/LoadMore";
 import ProductItem from "../../components/Product/ProductItem";
-import SortProduct from "../../components/Product/SortProducts";
+import SortProducts from "../../components/Product/SortProducts";
 
 export default function Category(props) {
   const { category, initialCount, initialProducts } = props;
@@ -53,13 +53,13 @@ export default function Category(props) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div className="px-4 pt-5">
-        <p className="font-bold text-center">{categoryName}</p>
+      <div className="pt-5 px-4">
+        <p className="font-bold text-base text-center">{categoryName}</p>
       </div>
-      <SortProduct selectValue={selectValue} sort={changeSortHandler} />
+      <SortProducts selectValue={selectValue} sort={changeSortHandler} />
       <div className="flex flex-wrap gap-4 px-4 py-5">
-        {products.map((product) => (
-          <ProductItem key={product.id} product={product} />
+        {products.map((product, index) => (
+          <ProductItem key={product.id} product={product} index={index} />
         ))}
       </div>
       <LoadMore isAllLoaded={isAllLoaded} loadMore={loadMoreHandler} />
