@@ -1,6 +1,5 @@
 import { Inter, Libre_Barcode_39_Text } from "@next/font/google";
-
-import { Fragment } from "react";
+import { SessionProvider } from "next-auth/react";
 
 import MenuItem from "../components/MenuItem";
 
@@ -12,9 +11,12 @@ const libreBarcode39Text = Libre_Barcode_39_Text({
 });
 const inter = Inter({ subsets: ["latin"] });
 
-export default function App({ Component, pageProps }) {
+export default function App({
+  Component,
+  pageProps: { session, ...pageProps },
+}) {
   return (
-    <Fragment>
+    <SessionProvider session={session}>
       <header
         className={`${libreBarcode39Text.className} bg-white border-b-2 border-white fixed py-1 shadow-sm top-0 w-full`}
       >
@@ -32,6 +34,6 @@ export default function App({ Component, pageProps }) {
         </nav>
         <Component {...pageProps} />
       </main>
-    </Fragment>
+    </SessionProvider>
   );
 }

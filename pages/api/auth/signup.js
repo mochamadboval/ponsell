@@ -15,7 +15,7 @@ function checkInvalidInput(email, name, password) {
   }
 }
 
-async function isUserExists(email) {
+export async function isUserExists(email) {
   const response = await fetch(
     `${firebaseURL}/users.json?orderBy="email"&equalTo="${email}"`
   );
@@ -30,7 +30,7 @@ async function createNewUser(email, name, password) {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ email, name, password }),
+    body: JSON.stringify({ id: `${+new Date()}`, email, name, password }),
   });
   const data = await response.json();
 
@@ -56,8 +56,9 @@ export default async function handler(req, res) {
     const hashedPassword = await hash(password, 12);
     const newUser = await createNewUser(email, name, hashedPassword);
 
-    res
-      .status(201)
-      .json({ message: "New user created!", userId: newUser.name });
+    res.status(201).json({
+      message: "Welcome. Please login to enter!",
+      userId: newUser.name,
+    });
   }
 }
