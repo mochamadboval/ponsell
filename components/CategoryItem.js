@@ -5,7 +5,7 @@ export default function CategoryItem(props) {
 
   return (
     <div className="pt-5 px-4">
-      <h2 className="font-bold text-base">{name}</h2>
+      <h2 className="font-semibold text-base">{name}</h2>
       <div className="flex flex-wrap gap-2 pt-2">
         {items.map((item) => (
           <Link

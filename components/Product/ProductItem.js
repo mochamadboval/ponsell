@@ -19,7 +19,7 @@ export default function ProductItem(props) {
           className="product-image"
         />
         <h2 className="mt-2">{product.name}</h2>
-        <p className="font-bold mt-auto">${product.price}</p>
+        <p className="font-semibold mt-auto">${product.price}</p>
         <p className="text-neutral-500 text-xs">
           {product.RAM} / {product.internal}
         </p>

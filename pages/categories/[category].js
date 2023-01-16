@@ -54,7 +54,7 @@ export default function Category(props) {
       </Head>
 
       <div className="pt-5 px-4">
-        <p className="font-bold text-base text-center">{categoryName}</p>
+        <p className="font-semibold text-base text-center">{categoryName}</p>
       </div>
       <SortProducts selectValue={selectValue} sort={changeSortHandler} />
       <div className="flex flex-wrap gap-4 px-4 py-5">

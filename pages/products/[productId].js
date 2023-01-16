@@ -43,8 +43,8 @@ export default function Product(props) {
         <div className="pb-20 pt-5 px-4">
           <article className="bg-white p-4 rounded-md shadow-sm">
             <h2 className="text-base">{product.name}</h2>
-            <p className="font-bold pt-2 text-base">${product.price}</p>
-            <h3 className="font-bold pt-4 text-center">Specifications</h3>
+            <p className="font-semibold pt-2 text-base">${product.price}</p>
+            <h3 className="font-semibold pt-4 text-center">Specifications</h3>
             <section className="flex flex-wrap gap-2 pt-2">
               <ProductSummary
                 icon="dimensions"

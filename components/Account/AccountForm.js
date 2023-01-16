@@ -89,7 +89,7 @@ export default function AccountForm() {
 
       <div className="max-w-screen-sm mx-auto px-4 py-5">
         <article className="bg-white p-4 rounded-md shadow-sm">
-          <h2 className="font-bold text-base text-center">{title}</h2>
+          <h2 className="font-semibold text-base text-center">{title}</h2>
           {messageBox && (
             <p
               className={`${
