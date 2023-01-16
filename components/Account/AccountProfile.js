@@ -21,8 +21,20 @@ export default function AccountProfile(props) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <p>Hello, {username}</p>
-      <button onClick={logoutHandler}>Logout</button>
+      <div className="max-w-screen-sm mx-auto px-4 py-5">
+        <article className="bg-white p-4 rounded-md shadow-sm">
+          <h2 className="text-lg">
+            Hi, <span className="font-semibold">{username}</span>
+          </h2>
+          <p className="text-neutral-500">{user.email}</p>
+          <button
+            className="bg-red-700 mt-4 py-3 rounded-md shadow-sm text-white w-full"
+            onClick={logoutHandler}
+          >
+            Logout
+          </button>
+        </article>
+      </div>
     </Fragment>
   );
 }
