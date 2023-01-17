@@ -42,6 +42,13 @@ export default function AccountForm() {
       },
       body: JSON.stringify({ email, name, password }),
     });
+    if (response.status === 429) {
+      setIsInvalidForm(true);
+      setMessageBox(true);
+      setMessage("Too many requests. Try again in 1 hour.");
+      return;
+    }
+
     const data = await response.json();
 
     if (data.userId) {

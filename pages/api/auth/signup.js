@@ -1,3 +1,5 @@
+import applyRateLimit from "../../../helpers/rateLimit";
+
 import { hash } from "bcryptjs";
 
 const firebaseURL =
@@ -52,6 +54,8 @@ export default async function handler(req, res) {
       res.status(422).json({ message: "User already exists!" });
       return;
     }
+
+    await applyRateLimit(req, res);
 
     const hashedPassword = await hash(password, 12);
     const newUser = await createNewUser(email, name, hashedPassword);
