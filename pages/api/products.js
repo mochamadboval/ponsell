@@ -43,7 +43,7 @@ export function sortProducts(data, count, value) {
     .map((product, index) => {
       if (index < count) {
         sorted.push({
-          id: product.id,
+          productId: product.id,
           name: product.name,
           price: product.price,
           RAM: product.RAM,

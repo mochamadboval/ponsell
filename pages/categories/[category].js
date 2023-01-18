@@ -59,7 +59,11 @@ export default function Category(props) {
       <SortProducts selectValue={selectValue} sort={changeSortHandler} />
       <div className="flex flex-wrap gap-4 px-4 py-5">
         {products.map((product, index) => (
-          <ProductItem key={product.id} product={product} index={index} />
+          <ProductItem
+            key={product.productId}
+            product={product}
+            index={index}
+          />
         ))}
       </div>
       <LoadMore isAllLoaded={isAllLoaded} loadMore={loadMoreHandler} />

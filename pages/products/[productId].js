@@ -1,14 +1,55 @@
 import { getProducts } from "../api/products";
+import { firebaseURL, isUserExists } from "../api/auth/signup";
 
 import Head from "next/head";
 import Image from "next/image";
+import { getSession } from "next-auth/react";
 
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 
 import ProductSummary from "../../components/Product/ProductSummary";
 
 export default function Product(props) {
-  const { product } = props;
+  const { product, userSession, wishlistedKey } = props;
+
+  const [productKey, setProductKey] = useState(wishlistedKey);
+
+  const wishlistHandler = async () => {
+    const user = await isUserExists(userSession.user.email);
+    const userId = user[Object.keys(user)[0]].id;
+
+    if (productKey) {
+      await fetch("/api/wishlist", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId, productKey }),
+      });
+
+      setProductKey(null);
+      return;
+    }
+
+    const response = await fetch(`${firebaseURL}/wishlist/${userId}.json`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        productId: product.id,
+        name: product.name,
+        price: product.price,
+        RAM: product.RAM,
+        internal: product.internal,
+        release_date: product.release_date,
+        images: product.images[0],
+      }),
+    });
+    const data = await response.json();
+
+    setProductKey(data.name);
+  };
 
   return (
     <Fragment>
@@ -40,7 +81,7 @@ export default function Product(props) {
             </div>
           ))}
         </figure>
-        <div className="pb-20 pt-5 px-4">
+        <div className={`${userSession ? "pb-20" : "pb-5"} pt-5 px-4`}>
           <article className="bg-white p-4 rounded-md shadow-sm">
             <h2 className="text-base">{product.name}</h2>
             <p className="font-semibold pt-2 text-base">${product.price}</p>
@@ -98,41 +139,51 @@ export default function Product(props) {
           </article>
         </div>
       </div>
-      <div className="bg-white bottom-0 fixed flex left-1/2 -translate-x-1/2 max-w-screen-sm mb-0.5 pb-14 pt-2 px-4 w-full sm:rounded-t-md">
-        <button className="flex-shrink-0 px-3">
-          <Image src={`/icons/wishlist.svg`} alt="" width={24} height={24} />
-        </button>
-        <button className="bg-green-700 ml-2 py-3 rounded-md shadow-sm text-white w-full">
-          Add to Cart
-        </button>
-      </div>
+      {userSession && (
+        <div className="bg-white bottom-0 fixed flex left-1/2 -translate-x-1/2 max-w-screen-sm mb-0.5 pb-14 pt-2 px-4 w-full sm:rounded-t-md">
+          <button className="flex-shrink-0 px-3" onClick={wishlistHandler}>
+            <Image
+              src={`/icons/${productKey ? "wishlisted" : "wishlist"}.svg`}
+              alt=""
+              width={24}
+              height={24}
+            />
+          </button>
+          <button className="bg-green-700 ml-2 py-3 rounded-md shadow-sm text-white w-full">
+            Add to Cart
+          </button>
+        </div>
+      )}
     </Fragment>
   );
 }
 
-export function getStaticProps(context) {
+export async function getServerSideProps(context) {
+  const session = await getSession({ req: context.req });
+
   const productId = context.params.productId;
 
   const data = getProducts();
+  const selected = data.products.find((product) => product.id === productId);
 
-  let selected = {};
-  data.products.map((product) => {
-    if (product.id === productId) {
-      selected = product;
-    }
-  });
+  let wishlistedKey;
+
+  if (session) {
+    const user = await isUserExists(session.user.email);
+    const userId = user[Object.keys(user)[0]].id;
+
+    const response = await fetch(
+      `${firebaseURL}/wishlist/${userId}.json?orderBy="productId"&equalTo="${productId}"`
+    );
+    const wishlisted = await response.json();
+    wishlistedKey = Object.keys(wishlisted)[0];
+  }
 
   return {
     props: {
       product: selected,
+      userSession: session,
+      wishlistedKey: wishlistedKey || null,
     },
-    revalidate: 10,
-  };
-}
-
-export function getStaticPaths() {
-  return {
-    paths: [],
-    fallback: "blocking",
   };
 }

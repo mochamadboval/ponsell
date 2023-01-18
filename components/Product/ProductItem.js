@@ -6,7 +6,7 @@ export default function ProductItem(props) {
 
   return (
     <Link
-      href={`/products/${product.id}`}
+      href={`/products/${product.productId}`}
       className="flex justify-center w-[calc((100%_/_2)_-_8px)] sm:w-[calc((100%_/_4)_-_12px)]"
     >
       <article className="bg-white flex flex-col gap-2 p-4 rounded-md shadow-sm">
