@@ -10,8 +10,10 @@ import { Fragment, useState } from "react";
 import ProductSummary from "../../components/Product/ProductSummary";
 
 export default function Product(props) {
-  const { product, userSession, wishlistedKey } = props;
+  const { cart, items, product, userSession, wishlistedKey } = props;
 
+  const [cartItems, setCartItems] = useState(items);
+  const [cartKey, setCartKey] = useState(cart);
   const [productKey, setProductKey] = useState(wishlistedKey);
 
   const wishlistHandler = async () => {
@@ -49,6 +51,42 @@ export default function Product(props) {
     const data = await response.json();
 
     setProductKey(data.name);
+  };
+
+  const cartHandler = async () => {
+    const user = await isUserExists(userSession.user.email);
+    const userId = user[Object.keys(user)[0]].id;
+
+    if (cartKey) {
+      await fetch("/api/cart", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId, cartKey, items: cartItems + 1 }),
+      });
+
+      setCartItems(cartItems + 1);
+      return;
+    }
+
+    const response = await fetch(`${firebaseURL}/cart/${userId}.json`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        productId: product.id,
+        name: product.name,
+        price: product.price,
+        images: product.images[0],
+        items: cartItems + 1,
+      }),
+    });
+    const data = await response.json();
+
+    setCartItems(cartItems + 1);
+    setCartKey(data.name);
   };
 
   return (
@@ -141,7 +179,11 @@ export default function Product(props) {
       </div>
       {userSession && (
         <div className="bg-white bottom-0 fixed flex left-1/2 -translate-x-1/2 max-w-screen-sm mb-0.5 pb-14 pt-2 px-4 w-full sm:rounded-t-md">
-          <button className="flex-shrink-0 px-3" onClick={wishlistHandler}>
+          <button
+            aria-label={productKey ? "Unwishlist" : "Save to Wishlist"}
+            className="flex-shrink-0 px-3"
+            onClick={wishlistHandler}
+          >
             <Image
               src={`/icons/${productKey ? "wishlisted" : "wishlist"}.svg`}
               alt=""
@@ -149,7 +191,10 @@ export default function Product(props) {
               height={24}
             />
           </button>
-          <button className="bg-green-700 ml-2 py-3 rounded-md shadow-sm text-white w-full">
+          <button
+            className="bg-green-700 ml-2 py-3 rounded-md shadow-sm text-white w-full"
+            onClick={cartHandler}
+          >
             Add to Cart
           </button>
         </div>
@@ -166,21 +211,35 @@ export async function getServerSideProps(context) {
   const data = getProducts();
   const selected = data.products.find((product) => product.id === productId);
 
+  let cartItems = 0;
+  let cartKey;
   let wishlistedKey;
 
   if (session) {
     const user = await isUserExists(session.user.email);
     const userId = user[Object.keys(user)[0]].id;
 
-    const response = await fetch(
+    const resWishlist = await fetch(
       `${firebaseURL}/wishlist/${userId}.json?orderBy="productId"&equalTo="${productId}"`
     );
-    const wishlisted = await response.json();
+    const wishlisted = await resWishlist.json();
     wishlistedKey = Object.keys(wishlisted)[0];
+
+    const resCart = await fetch(
+      `${firebaseURL}/cart/${userId}.json?orderBy="productId"&equalTo="${productId}"`
+    );
+    const cart = await resCart.json();
+
+    if (Object.keys(cart).length !== 0) {
+      cartKey = Object.keys(cart)[0];
+      cartItems = cart[cartKey].items;
+    }
   }
 
   return {
     props: {
+      cart: cartKey || null,
+      items: cartItems,
       product: selected,
       userSession: session,
       wishlistedKey: wishlistedKey || null,
