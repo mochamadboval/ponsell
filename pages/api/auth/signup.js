@@ -2,8 +2,7 @@ import applyRateLimit from "../../../helpers/rateLimit";
 
 import { hash } from "bcryptjs";
 
-export const firebaseURL =
-  "https://ponsell-default-rtdb.asia-southeast1.firebasedatabase.app";
+export const firebaseURL = process.env.FIREBASE_URL;
 
 function checkInvalidInput(email, name, password) {
   if (!name.trim()) {

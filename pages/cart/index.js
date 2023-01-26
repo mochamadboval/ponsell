@@ -1,4 +1,5 @@
-import { firebaseURL, isUserExists } from "../api/auth/signup";
+import { fetchCart } from "../api/cart";
+import { isUserExists } from "../api/auth/signup";
 
 import Head from "next/head";
 import Image from "next/image";
@@ -7,15 +8,12 @@ import { getSession } from "next-auth/react";
 import { Fragment, useState } from "react";
 
 export default function Cart(props) {
-  const { cart, total, userSession } = props;
+  const { cart, total, userId, userSession } = props;
 
   const [products, setProducts] = useState(cart);
   const [totalPrice, setTotalPrice] = useState(total);
 
   const itemsHandler = async (cartKey, currentItems, isAdding) => {
-    const user = await isUserExists(userSession.user.email);
-    const userId = user[Object.keys(user)[0]].id;
-
     if (currentItems === 1 && !isAdding) {
       await fetch("/api/cart", {
         method: "DELETE",
@@ -38,19 +36,17 @@ export default function Cart(props) {
       });
     }
 
-    const response = await fetch(`${firebaseURL}/cart/${userId}.json`);
+    const response = await fetch("/api/cart", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userId }),
+    });
     const data = await response.json();
 
-    const cart = [];
-    let totalPrice = 0;
-    for (const cartKey in data) {
-      cart.push({ cartKey: cartKey, ...data[cartKey] });
-
-      totalPrice += data[cartKey].price * data[cartKey].items;
-    }
-
-    setProducts(cart);
-    setTotalPrice(totalPrice);
+    setProducts(data.cart);
+    setTotalPrice(data.totalPrice);
   };
 
   return (
@@ -151,18 +147,14 @@ export async function getServerSideProps(context) {
   const user = await isUserExists(session.user.email);
   const userId = user[Object.keys(user)[0]].id;
 
-  const response = await fetch(`${firebaseURL}/cart/${userId}.json`);
-  const data = await response.json();
-
-  const cart = [];
-  let totalPrice = 0;
-  for (const cartKey in data) {
-    cart.push({ cartKey: cartKey, ...data[cartKey] });
-
-    totalPrice += data[cartKey].price * data[cartKey].items;
-  }
+  const data = await fetchCart(userId);
 
   return {
-    props: { cart, total: totalPrice, userSession: session },
+    props: {
+      cart: data.cart,
+      total: data.totalPrice,
+      userId,
+      userSession: session,
+    },
   };
 }

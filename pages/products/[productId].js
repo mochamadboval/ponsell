@@ -10,16 +10,13 @@ import { Fragment, useState } from "react";
 import ProductSummary from "../../components/Product/ProductSummary";
 
 export default function Product(props) {
-  const { cart, items, product, userSession, wishlistedKey } = props;
+  const { cart, items, product, userId, userSession, wishlistedKey } = props;
 
   const [cartItems, setCartItems] = useState(items);
   const [cartKey, setCartKey] = useState(cart);
   const [productKey, setProductKey] = useState(wishlistedKey);
 
   const wishlistHandler = async () => {
-    const user = await isUserExists(userSession.user.email);
-    const userId = user[Object.keys(user)[0]].id;
-
     if (productKey) {
       await fetch("/api/wishlist", {
         method: "DELETE",
@@ -33,20 +30,12 @@ export default function Product(props) {
       return;
     }
 
-    const response = await fetch(`${firebaseURL}/wishlist/${userId}.json`, {
+    const response = await fetch("/api/wishlist", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        productId: product.id,
-        name: product.name,
-        price: product.price,
-        RAM: product.RAM,
-        internal: product.internal,
-        release_date: product.release_date,
-        images: product.images[0],
-      }),
+      body: JSON.stringify({ userId, product }),
     });
     const data = await response.json();
 
@@ -54,9 +43,6 @@ export default function Product(props) {
   };
 
   const cartHandler = async () => {
-    const user = await isUserExists(userSession.user.email);
-    const userId = user[Object.keys(user)[0]].id;
-
     if (cartKey) {
       await fetch("/api/cart", {
         method: "PATCH",
@@ -70,18 +56,12 @@ export default function Product(props) {
       return;
     }
 
-    const response = await fetch(`${firebaseURL}/cart/${userId}.json`, {
+    const response = await fetch("/api/cart", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        productId: product.id,
-        name: product.name,
-        price: product.price,
-        images: product.images[0],
-        items: cartItems + 1,
-      }),
+      body: JSON.stringify({ userId, product, cartItems }),
     });
     const data = await response.json();
 
@@ -212,18 +192,21 @@ export async function getServerSideProps(context) {
   const selected = data.products.find((product) => product.id === productId);
 
   let cartItems = 0;
-  let cartKey;
-  let wishlistedKey;
+  let cartKey = null;
+  let userId = null;
+  let wishlistedKey = null;
 
   if (session) {
     const user = await isUserExists(session.user.email);
-    const userId = user[Object.keys(user)[0]].id;
+    userId = user[Object.keys(user)[0]].id;
 
     const resWishlist = await fetch(
       `${firebaseURL}/wishlist/${userId}.json?orderBy="productId"&equalTo="${productId}"`
     );
     const wishlisted = await resWishlist.json();
-    wishlistedKey = Object.keys(wishlisted)[0];
+    if (Object.keys(wishlisted).length !== 0) {
+      wishlistedKey = Object.keys(wishlisted)[0];
+    }
 
     const resCart = await fetch(
       `${firebaseURL}/cart/${userId}.json?orderBy="productId"&equalTo="${productId}"`
@@ -238,11 +221,12 @@ export async function getServerSideProps(context) {
 
   return {
     props: {
-      cart: cartKey || null,
+      cart: cartKey,
       items: cartItems,
       product: selected,
+      userId,
       userSession: session,
-      wishlistedKey: wishlistedKey || null,
+      wishlistedKey: wishlistedKey,
     },
   };
 }
