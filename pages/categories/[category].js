@@ -1,5 +1,5 @@
+import { fetchProducts } from "../../helpers/fetchData";
 import { getCategory, getProducts, sortProducts } from "../api/products";
-import fetchProducts from "../../helpers/fetchProducts";
 
 import Head from "next/head";
 

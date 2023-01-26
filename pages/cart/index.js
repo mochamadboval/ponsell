@@ -1,5 +1,5 @@
+import { fetchUserId } from "../../helpers/fetchData";
 import { fetchCart } from "../api/cart";
-import { isUserExists } from "../api/auth/signup";
 
 import Head from "next/head";
 import Image from "next/image";
@@ -144,8 +144,7 @@ export async function getServerSideProps(context) {
     };
   }
 
-  const user = await isUserExists(session.user.email);
-  const userId = user[Object.keys(user)[0]].id;
+  const userId = await fetchUserId(session.user.email);
 
   const data = await fetchCart(userId);
 

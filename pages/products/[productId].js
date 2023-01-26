@@ -1,5 +1,6 @@
+import { fetchUserId } from "../../helpers/fetchData";
 import { getProducts } from "../api/products";
-import { firebaseURL, isUserExists } from "../api/auth/signup";
+import { firebaseURL } from "../api/auth/signup";
 
 import Head from "next/head";
 import Image from "next/image";
@@ -197,8 +198,7 @@ export async function getServerSideProps(context) {
   let wishlistedKey = null;
 
   if (session) {
-    const user = await isUserExists(session.user.email);
-    userId = user[Object.keys(user)[0]].id;
+    userId = await fetchUserId(session.user.email);
 
     const resWishlist = await fetch(
       `${firebaseURL}/wishlist/${userId}.json?orderBy="productId"&equalTo="${productId}"`

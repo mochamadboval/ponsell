@@ -1,4 +1,5 @@
-import { firebaseURL, isUserExists } from "../api/auth/signup";
+import { fetchUserId } from "../../helpers/fetchData";
+import { firebaseURL } from "../api/auth/signup";
 
 import Head from "next/head";
 import { getSession } from "next-auth/react";
@@ -51,8 +52,7 @@ export async function getServerSideProps(context) {
     };
   }
 
-  const user = await isUserExists(session.user.email);
-  const userId = user[Object.keys(user)[0]].id;
+  const userId = await fetchUserId(session.user.email);
 
   const response = await fetch(`${firebaseURL}/wishlist/${userId}.json`);
   const data = await response.json();
